@@ -12,4 +12,4 @@ while run:
 
     pygame.draw.line(screen, (255,0,0), [400, 300], [300, 300], 20)
 
-    pygame.display.flip()
+   
