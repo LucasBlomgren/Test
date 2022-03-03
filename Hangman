@@ -1,0 +1,15 @@
+import pygame
+
+screen = pygame.display.set_mode([800, 600])
+run = True
+
+
+while run:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    pygame.draw.line(screen, (255,0,0), [400, 300], [300, 300], 20)
+
+    pygame.display.flip()
