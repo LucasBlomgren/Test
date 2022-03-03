@@ -1,3 +1,17 @@
+#hangman
+# Välkomsttext/ruta
+# input ord /bibliotek(lista)
+# Visa bild med antal streck för antal bokstäver: _ _ _ _ _
+# Gissa ord (input)
+# While True: 
+# Om rätt: Skriva ut bokstav
+# Om fel: rita ut streck gubbe gubbe
+# antal gissningar: 7
+#Om antal gissningar > 7 : GAME OVER (Gubbe ritas ut)
+# om rätt ord: Vinner! (dialogruta)
+# Vill du spela igen? Y / N
+
+
 import pygame
 
 screen = pygame.display.set_mode([800, 600])
