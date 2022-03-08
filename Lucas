@@ -1,1 +1,72 @@
 
+import pygame
+pygame.init()
+pygame.font.init()
+
+#---Fonts---
+font_big = pygame.font.SysFont('Cornerstone', 60)
+font_medium = pygame.font.SysFont('Cornerstone', 35)
+
+#---Konstanter---
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode([screen_width, screen_height])
+
+#---Listor---
+approved_chars = ["a","b","c","d","e","f","g,","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","å","ä","ö"]
+word = ["h","e","j"]
+found_chars = []
+wrong_chars = []
+
+#---Variabler---
+done = False
+tries = 0
+
+#---Kolla bokstav på knapptryck---
+def check_char(keydown):
+
+    global tries
+
+    if keydown in word:
+        if keydown not in found_chars:
+            found_chars.append(keydown)
+
+    elif keydown not in word:
+        if keydown not in wrong_chars:
+            if keydown in approved_chars:
+                wrong_chars.append(keydown)
+                tries += 1
+
+#---Kolla om man har vunnit---
+def check_win():
+
+    result = all(elem in found_chars for elem in word)
+
+    if result:
+        return True
+
+#---Main loop---   
+while not done:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            done = True
+           
+        elif event.type == pygame.KEYDOWN:
+            check_char(pygame.key.name(event.key))
+            print("Found:", found_chars)
+            print("Wrong", wrong_chars)
+            print()
+    
+    screen.fill([255,255,255])
+
+    if check_win() == True:
+        textsurface = font_big.render('YOU WIN', True, [0, 0, 0])
+        screen.blit(textsurface, (300,250))
+    
+    if tries > 4:
+        textsurface = font_big.render('GAME OVER', True, [0, 0, 0])
+        screen.blit(textsurface, (270,250))
+
+    pygame.display.flip()
+
+pygame.quit()
