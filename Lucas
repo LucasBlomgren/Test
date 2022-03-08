@@ -21,13 +21,22 @@ wrong_chars = []
 done = False
 tries = 0
 found_chars_str = ""
+wrong_chars_str_1 = ""
+wrong_chars_str_2 = ""
+wrong_chars_str_3 = ""
+wrong_chars_str_4 = ""
+
+
 
 #---Kolla bokstav på knapptryck---
 def check_char(keydown):
 
     global tries
     global found_chars_str
-    global wrong_chars_str
+    global wrong_chars_str_1
+    global wrong_chars_str_2
+    global wrong_chars_str_3
+    global wrong_chars_str_4
 
     if keydown in word:
         if keydown not in found_chars:
@@ -46,6 +55,17 @@ def check_char(keydown):
             if keydown in approved_chars:
                 wrong_chars.append(keydown)
                 tries += 1
+
+                length = len(wrong_chars)
+
+                if length < 6:
+                    wrong_chars_str_1 += " " + keydown
+                elif length < 11:
+                    wrong_chars_str_2 += " " + keydown
+                elif length < 16:
+                    wrong_chars_str_3 += " " + keydown
+                elif length < 21:
+                    wrong_chars_str_4 += " " + keydown
 
 #---Kolla om man har vunnit---
 def check_win():
@@ -69,6 +89,21 @@ while not done:
     
     screen.fill([255,255,255])
 
+    textsurface = font_big.render(wrong_chars_str_1, True, [0, 0, 0])
+    screen.blit(textsurface, (600,100))
+
+    textsurface = font_big.render(wrong_chars_str_2, True, [0, 0, 0])
+    screen.blit(textsurface, (600,150))
+
+    textsurface = font_big.render(wrong_chars_str_3, True, [0, 0, 0])
+    screen.blit(textsurface, (600,200))
+
+    textsurface = font_big.render(wrong_chars_str_4, True, [0, 0, 0])
+    screen.blit(textsurface, (600,250))
+
+
+
+
     textsurface = font_big.render(found_chars_str, True, [0, 0, 0])
     screen.blit(textsurface, (300,350))
 
@@ -78,7 +113,7 @@ while not done:
 
     if check_win() == True:
         textsurface = font_big.render('YOU WIN', True, [0, 0, 0])
-        screen.blit(textsurface, (300,250))
+        screen.blit(textsurface, (250,200))
     
     if tries > 4:
         textsurface = font_big.render('GAME OVER', True, [0, 0, 0])
