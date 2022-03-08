@@ -12,7 +12,7 @@ screen_height = 800
 screen = pygame.display.set_mode([screen_width, screen_height])
 
 #---Listor---
-approved_chars = ["a","b","c","d","e","f","g,","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","å","ä","ö"]
+approved_chars = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","å","ä","ö"]
 word = ["h","e","j"]
 found_chars = ["  ","  ","  "]
 wrong_chars = []
@@ -59,15 +59,15 @@ def check_char(keydown):
                 length = len(wrong_chars)
 
                 if length < 6:
-                    wrong_chars_str_1 += " " + keydown
+                    wrong_chars_str_1 += f"{keydown:<3}"
                 elif length < 11:
-                    wrong_chars_str_2 += " " + keydown
+                    wrong_chars_str_2 += f"{keydown:<3}"
                 elif length < 16:
-                    wrong_chars_str_3 += " " + keydown
+                    wrong_chars_str_3 += f"{keydown:<3}"
                 elif length < 21:
-                    wrong_chars_str_4 += " " + keydown
+                    wrong_chars_str_4 += f"{keydown:<3}"
                 elif length < 26:
-                    wrong_chars_str_5 += " " + keydown
+                    wrong_chars_str_5 += f"{keydown:<3}"
 
 #---Kolla om man har vunnit---
 def check_win():
