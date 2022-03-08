@@ -7,8 +7,8 @@ font_big = pygame.font.SysFont('Cornerstone', 60)
 font_medium = pygame.font.SysFont('Cornerstone', 35)
 
 #---Konstanter---
-screen_width = 800
-screen_height = 600
+screen_width = 1000
+screen_height = 800
 screen = pygame.display.set_mode([screen_width, screen_height])
 
 #---Listor---
@@ -25,10 +25,9 @@ wrong_chars_str_1 = ""
 wrong_chars_str_2 = ""
 wrong_chars_str_3 = ""
 wrong_chars_str_4 = ""
+wrong_chars_str_5 = ""
 
-
-
-#---Kolla bokstav på knapptryck---
+#---Kolla vilken bokstav på knapptryck och skapa strängar med bokstäver som kan skrivas ut---
 def check_char(keydown):
 
     global tries
@@ -37,6 +36,7 @@ def check_char(keydown):
     global wrong_chars_str_2
     global wrong_chars_str_3
     global wrong_chars_str_4
+    global wrong_chars_str_5
 
     if keydown in word:
         if keydown not in found_chars:
@@ -66,6 +66,8 @@ def check_char(keydown):
                     wrong_chars_str_3 += " " + keydown
                 elif length < 21:
                     wrong_chars_str_4 += " " + keydown
+                elif length < 26:
+                    wrong_chars_str_5 += " " + keydown
 
 #---Kolla om man har vunnit---
 def check_win():
@@ -74,6 +76,8 @@ def check_win():
 
     if result:
         return True
+    else:
+        return False
 
 #---Main loop---   
 while not done:
@@ -83,41 +87,40 @@ while not done:
            
         elif event.type == pygame.KEYDOWN:
             check_char(pygame.key.name(event.key))
-            print("Found:", found_chars)
-            print("Wrong", wrong_chars)
-            print()
-    
+
+    #---Fyll skärmen med vitt---
     screen.fill([255,255,255])
 
+    #---Skriv ut felgissade bokstäver---
     textsurface = font_big.render(wrong_chars_str_1, True, [0, 0, 0])
-    screen.blit(textsurface, (600,100))
-
+    screen.blit(textsurface, (750,100))
     textsurface = font_big.render(wrong_chars_str_2, True, [0, 0, 0])
-    screen.blit(textsurface, (600,150))
-
+    screen.blit(textsurface, (750,150))
     textsurface = font_big.render(wrong_chars_str_3, True, [0, 0, 0])
-    screen.blit(textsurface, (600,200))
-
+    screen.blit(textsurface, (750,200))
     textsurface = font_big.render(wrong_chars_str_4, True, [0, 0, 0])
-    screen.blit(textsurface, (600,250))
+    screen.blit(textsurface, (750,250))
+    textsurface = font_big.render(wrong_chars_str_5, True, [0, 0, 0])
+    screen.blit(textsurface, (750,300))
 
-
-
-
+    #---Skriv ut korrekta bokstäver---
     textsurface = font_big.render(found_chars_str, True, [0, 0, 0])
-    screen.blit(textsurface, (300,350))
+    screen.blit(textsurface, (400,550))
 
-    pygame.draw.line(screen, [0,0,0], (300,400), (330,400), 5)
-    pygame.draw.line(screen, [0,0,0], (350,400), (380,400), 5)
-    pygame.draw.line(screen, [0,0,0], (400,400), (430,400), 5)
+    #---Skriv ut tre linjer för ordet "hej"---
+    pygame.draw.line(screen, [0,0,0], (400,600), (430,600), 5)
+    pygame.draw.line(screen, [0,0,0], (450,600), (480,600), 5)
+    pygame.draw.line(screen, [0,0,0], (500,600), (530,600), 5)
 
+    #---Kolla om man har vunnit och skriv isåfall "WINNER!"
     if check_win() == True:
-        textsurface = font_big.render('YOU WIN', True, [0, 0, 0])
-        screen.blit(textsurface, (250,200))
+        textsurface = font_big.render('WINNER!', True, [0, 0, 0])
+        screen.blit(textsurface, (375,300))
     
+    #---Efter 4 försök skriv "GAME OVER"---
     if tries > 4:
         textsurface = font_big.render('GAME OVER', True, [0, 0, 0])
-        screen.blit(textsurface, (270,250))
+        screen.blit(textsurface, (355,300))
 
     pygame.display.flip()
 
