@@ -1,29 +1,330 @@
-#hangman
-# Välkomsttext/ruta
-# input ord /bibliotek(lista)
-# Visa bild med antal streck för antal bokstäver: _ _ _ _ _
-# Gissa ord (input)
-# While True: 
-# Om rätt: Skriva ut bokstav
-# Om fel: rita ut streck gubbe 
-# antal gissningar: 7
-#Om antal gissningar > 7 : GAME OVER (Gubbe ritas ut, gråtonad skärm)
-# om rätt ord: Vinner! (dialogruta)
-# Vill du spela igen? Y / N 
-
-
 import pygame
+import pygame.gfxdraw
+import random
+import sys
 
-screen = pygame.display.set_mode([800, 600])
-run = True
+pygame.init()
+pygame.font.init()
+
+#---Fonts---
+font_small = pygame.font.SysFont('Cornerstone', 40)
+font_medium = pygame.font.SysFont('Cornerstone', 60)
+font_big = pygame.font.SysFont('Cornerstone', 75)
+
+#---Konstanter---
+screen_width = 1000
+screen_height = 800
+screen = pygame.display.set_mode([screen_width, screen_height])
+pygame.display.set_caption("Hangman")
+
+#---Listor---
+lista_easy = ["bil","hej","röd","sås","tak","lat","lök","kök","bål","öga","orm"]
+lista_medium = ["bäver","tacos","krona", "tårta","kaffe","banan", "socka","kulor","glass","feber"]
+lista_hard = ["omtanke","utomhus","iskaffe","spåtant","möblera", "musiker","sverige" ]
+approved_chars = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","å","ä","ö"]
+wrong_chars = []
+
+#---Variabler---
+tries = 0
+found_chars_str = ""
+wrong_chars_str_1 = ""
+wrong_chars_str_2 = ""
+wrong_chars_str_3 = ""
+wrong_chars_str_4 = ""
+wrong_chars_str_5 = ""
+
+#---Kolla vilken bokstav på knapptryck och skapa strängar med bokstäver som kan skrivas ut---
+def char_input(keydown, word, found_chars):
+
+    #---Hämta nödvändig data för ord och karaktärer---
+    global tries
+    global wrong_chars
+    global found_chars_str
+    global wrong_chars_str_1
+    global wrong_chars_str_2
+    global wrong_chars_str_3
+    global wrong_chars_str_4
+    global wrong_chars_str_5
+
+    #---Om input char finns i lista word
+    if keydown in word:
+        if keydown not in found_chars:
+            
+            #---Loopa karaktärer i ordlista och lägg in user input på rätt plats---
+            i=0
+            for char in word:
+                if char == keydown:
+                    found_chars.insert(i, char)
+                    del found_chars[i+1]
+                i+=1
+            
+            #---Skapa sträng för rendering på skärmen---
+            found_chars_str = "   ".join(found_chars)
+
+    else:
+        if keydown not in wrong_chars:
+            if keydown in approved_chars:
+
+                wrong_chars.append(keydown)
+                tries += 1
+
+                #---Beroende på wrong_chars-listans längd, lägg in bokstav i rätt sträng för rendering på skärm---
+                length = len(wrong_chars)
+
+                if length < 6:
+                    wrong_chars_str_1 += f"{keydown:<3}"
+                elif length < 11:
+                    wrong_chars_str_2 += f"{keydown:<3}"
+                elif length < 16:
+                    wrong_chars_str_3 += f"{keydown:<3}"
+                elif length < 21:
+                    wrong_chars_str_4 += f"{keydown:<3}"
+                elif length < 26:
+                    wrong_chars_str_5 += f"{keydown:<3}"
+
+#---Kolla om spelaren har vunnit---
+def check_win(word, found_chars):
+
+    #---Kolla om alla element i found_chars finns i word---
+    result = all(elem in found_chars for elem in word)
+
+    if result:
+        return True
+    else:
+        return False
+
+#---Funktionen för spelet---
+def game(menu_choice):
+
+    word = []
+
+    #---Definiera svårighetsgrad, slumpa ord från rätt lista och skapa lista med rätt längd beroende på "menu_choice"---
+    if menu_choice == 1:
+        difficulty = "easy"
+        random_word = random.choice(lista_easy)
+        found_chars = ["  ","  ","  "]
+    elif menu_choice == 2:
+        difficulty = "medium"
+        random_word = random.choice(lista_medium)
+        found_chars = ["  ","  ","  ","  ","  "]
+    else:
+        difficulty = "hard" 
+        random_word = random.choice(lista_hard)
+        found_chars = ["  ","  ","  ","  ","  ","  ", "  "]   
+
+    #---Lägg in slumpat ord i lista---
+    for char in random_word:
+        word.append(char)
+    
+    print(word)
+
+    #---Loopa sju gånger och ladda in alla bakgrundsbilder i lista---
+    bilder = []
+    for i in range(7):
+        bild = pygame.image.load("hangman"+str(i)+".png")
+        bild = pygame.transform.scale(bild, (screen_width, screen_height))
+        bilder.append(bild)
+
+    done = False
+
+    #---Loop som kollar efter user events och kör tills användaren stängt ner rutan, vunnit eller förlorat---
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+                sys.exit()
+            
+            elif event.type == pygame.KEYDOWN:
+                    #---Kör funktionen char_input och skicka med sträng med nedtryckt tangent, word och found_chars--- 
+                    char_input(pygame.key.name(event.key), word, found_chars)
+
+        #---Försök måla ut alla bakgrundsbilder---
+        try:
+            screen.blit(bilder[tries], (0,0))
+        except:
+            pass
+        
+        #---Skriv ut felgissade bokstäver på fem olika rader---
+        textsurface = font_medium.render(wrong_chars_str_1, True, [0, 0, 0])
+        screen.blit(textsurface, (750,100))
+        textsurface = font_medium.render(wrong_chars_str_2, True, [0, 0, 0])
+        screen.blit(textsurface, (750,150))
+        textsurface = font_medium.render(wrong_chars_str_3, True, [0, 0, 0])
+        screen.blit(textsurface, (750,200))
+        textsurface = font_medium.render(wrong_chars_str_4, True, [0, 0, 0])
+        screen.blit(textsurface, (750,250))
+        textsurface = font_medium.render(wrong_chars_str_5, True, [0, 0, 0])
+        screen.blit(textsurface, (750,300))
+
+        #---Skriv ut linjer beroende på vald svårighetsgrad---
+        if difficulty == "easy":
+            lines = 3
+            start = 400
+            end = 450
+        elif difficulty == "medium":
+            lines = 5
+            start = 300
+            end = 350
+        elif difficulty == "hard":
+            lines = 7
+            start = 200
+            end = 250
+
+        #---Skriv ut korrekta bokstäver---
+        textsurface = font_big.render(found_chars_str, True, [0, 0, 0])
+        screen.blit(textsurface, (start+15,650))
+            
+        #---Loopa ut rätt antal linjer med rätt start positioner beroende på vald svårighetsgrad---
+        i = 0  
+        for x in range(lines):
+            pygame.draw.line(screen, [0,0,0], (start+i,710), (end+i,710), 5)
+            i+=70
+
+        #---Kolla om man har vunnit och skriv isåfall "WINNER!"
+        if check_win(word, found_chars) == True:
+            game_win()
+            done = True
+        
+        #---Efter tillräckliga försök kör game_over-funktionen---
+        if tries > 5:
+            game_over()
+            done = True
+
+        pygame.display.flip()
 
 
-while run:
+#---Funktion för vad som händer när man vinner---
+def game_win():
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+    #---Hämta nödvändig data för ord och karaktärer---
+    global tries
+    global wrong_chars
+    global found_chars_str
+    global wrong_chars_str_1
+    global wrong_chars_str_2
+    global wrong_chars_str_3
+    global wrong_chars_str_4
+    global wrong_chars_str_5
 
-    pygame.draw.line(screen, (255,0,0), [400, 300], [300, 300], 20)
+    done = False
 
-   pygame.display.flip()
+    #---Skapa renderad text"---
+    textsurface = font_big.render('WINNER!', True, [255, 255, 255])
+    textsurface2 = font_small.render('PRESS "ENTER" TO PLAY AGAIN', True, [255, 255, 255])
+
+    #---Måla ut gröna rektanglar och text---
+    pygame.draw.rect(screen, [0,200,0], (245,315,510,260), 0, 20)
+    pygame.draw.rect(screen, [0,230,0], (260,330,480,230), 0, 20)
+    screen.blit(textsurface, (380, 370))
+    screen.blit(textsurface2, (280, 470))
+    pygame.display.flip()
+
+    #---Loop som kollar efter user events och kör tills användaren stängt ner rutan eller trycker på ENTER---
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+                sys.exit()
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    done = True
+
+                    #---Återställ all data---
+                    wrong_chars = []
+                    tries = 0
+                    found_chars_str = ""
+                    wrong_chars_str_1 = ""
+                    wrong_chars_str_2 = ""
+                    wrong_chars_str_3 = ""
+                    wrong_chars_str_4 = ""
+                    wrong_chars_str_5 = ""
+
+#---Funktion för vad som händer när man förlorar---
+def game_over():
+
+    #---Hämta nödvändig data för ord och karaktärer---
+    global tries
+    global wrong_chars
+    global found_chars_str
+    global wrong_chars_str_1
+    global wrong_chars_str_2
+    global wrong_chars_str_3
+    global wrong_chars_str_4
+    global wrong_chars_str_5
+
+    done = False
+
+    #---Skapa renderad text"---
+    textsurface = font_big.render('GAME OVER', True, [255, 255, 255])
+    textsurface2 = font_small.render('PRESS "ENTER" TO PLAY AGAIN', True, [255, 255, 255])
+
+    #---Måla ut gråskala, röda rektanglar och text---
+    pygame.gfxdraw.box(screen, pygame.Rect(0,0,screen_width, screen_height), [0,0,0,75])
+    pygame.draw.rect(screen, [200,0,0], (245,315,510,260), 0, 20)
+    pygame.draw.rect(screen, [230,0,0], (260,330,480,230), 0, 20)
+    screen.blit(textsurface, (350, 370))
+    screen.blit(textsurface2, (280, 470))
+    pygame.display.flip()
+
+    #---Loop som kollar efter user events och kör tills användaren stängt ner rutan eller trycker på ENTER---
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+                sys.exit()
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    done = True
+
+                    #---Återställ all data---
+                    wrong_chars = []
+                    tries = 0
+                    found_chars_str = ""
+                    wrong_chars_str_1 = ""
+                    wrong_chars_str_2 = ""
+                    wrong_chars_str_3 = ""
+                    wrong_chars_str_4 = ""
+                    wrong_chars_str_5 = ""
+
+#---Funktion för huvudmenyn---
+def main():
+
+    menu_choice = 1
+
+    done = False
+
+    #---Loop som kollar efter user events och kör tills användaren stängt ner rutan eller trycker på ENTER---
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+            
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    if menu_choice != 1:
+                        menu_choice -= 1
+                elif event.key == pygame.K_DOWN:
+                    if menu_choice != 4:
+                        menu_choice += 1
+                elif event.key == pygame.K_RETURN:
+                    if menu_choice == 4:
+                        done = True
+                    else:
+                        game(menu_choice)
+
+        #---Fyll skärmen med vitt---
+        screen.fill([255,255,255])
+
+        menu_choice_str = str(menu_choice)
+
+        textsurface = font_big.render(menu_choice_str, True, [0, 0, 0])
+        screen.blit(textsurface, (375,300))
+
+        pygame.display.flip()
+
+    pygame.quit()
+
+#---Kör huvudmenyn---
+main()
